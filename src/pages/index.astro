@@ -1,16 +1,40 @@
 ---
-
+import Frame from "@layouts/Frame.astro"
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Frame>
+	<p class="response"></p>
+    <button data-action="getAgent">Get Agent</button>
+    <button data-action="getWaypoints">Get Waypoints</button>
+</Frame>
+
+<style>
+</style>
+
+<script>
+import { actions } from 'astro:actions';
+const token = import.meta.env.PUBLIC_TOKEN;
+
+const getAgentButton = document.querySelector('[data-action="getAgent"]');
+const getWaypointsButton = document.querySelector('[data-action="getWaypoints"]');
+const response = document.querySelector('.response');
+
+getAgentButton?.addEventListener('click', async () => {
+	const { data, error } = await actions.getAgent(token)
+	if (!error) {
+		const { accountId, symbol, headquarters, credits, startingFaction, shipCount } = data;
+
+		response.innerHTML = `Account ID: ${accountId}<br>Symbol: ${symbol}<br>Headquarters: ${headquarters}<br>Credits: ${credits}<br>Starting Faction: ${startingFaction}<br>Ship Count: ${shipCount}`;
+	}
+});
+
+getWaypointsButton?.addEventListener('click', async () => {
+	const { data, error } = await actions.getWaypoints({systemSymbol: 'X1-QS57', waypointSymbol: 'X1-QS57-A1'})
+	if (!error) {
+		const { symbol, type, systemSymbol, x, y, orbitals, traits, isUnderConstruction, faction, modifiers, chart } = data;
+
+		response.innerHTML = JSON.stringify(data.orbitals);
+
+	}
+})
+</script>
